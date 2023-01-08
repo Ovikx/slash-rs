@@ -8,7 +8,7 @@ async fn main() {
     dotenv().ok();
     let token = env::var("TOKEN").expect("Could not read token");
     let mut client = Client::new(&token);
-    let res = match client.connect().await {
+    let res = match client.get_gateway().await {
         Ok(res) => res,
         Err(_err) => panic!("{}", _err)
     };
