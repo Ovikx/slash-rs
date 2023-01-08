@@ -2,13 +2,17 @@ use tokio;
 use dotenv::dotenv;
 use std::env;
 use slash_rs::Client;
+use actix_web;
 
-#[tokio::main]
+#[actix_web::main]
 async fn main() {
     dotenv().ok();
     let token = env::var("TOKEN").expect("Could not read token");
-    let client = Client::new(&token);
-    let res = client.gateway(10).await.unwrap();
+    let mut client = Client::new(&token);
+    let res = match client.gateway(10).await {
+        Ok(res) => res,
+        Err(_err) => panic!("{}", _err)
+    };
 
     println!("{:?}", &res.url);
 }
