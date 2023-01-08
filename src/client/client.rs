@@ -12,8 +12,8 @@ impl Client {
         Client {token: String::from(token), http: awc::Client::new(), wss_url: String::from("wss://gateway.discord.gg")}
     }
 
-    pub async fn connect(&mut self, version: u32) -> Result<GatewayResponse, Box<dyn std::error::Error>> {
-        let base_url = String::from(format!("https://discord.com/api/v{}", version));
+    pub async fn connect(&mut self) -> Result<GatewayResponse, Box<dyn std::error::Error>> {
+        let base_url = String::from("https://discord.com/api/v10");
         print!("HI");
         let res = self.http
         .get(format!("{}/gateway/bot", base_url))
@@ -23,7 +23,7 @@ impl Client {
         .json::<GatewayResponse>()
         .await?;
 
-        self.wss_url = Some(String::from(&res.url));
+        self.wss_url = String::from(&res.url);
         print!("{:?}", &res);
         Ok(res)
     }
