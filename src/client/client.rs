@@ -4,15 +4,15 @@ use crate::http::discord::GatewayResponse;
 pub struct Client {
     pub token: String,
     pub http: awc::Client,
-    pub wss_url: Option<String>
+    pub wss_url: String
 }
 
 impl Client {
     pub fn new(token: &str) -> Self {
-        Client {token: String::from(token), http: awc::Client::new(), wss_url: None}
+        Client {token: String::from(token), http: awc::Client::new(), wss_url: String::from("wss://gateway.discord.gg")}
     }
 
-    pub async fn gateway(&mut self, version: u32) -> Result<GatewayResponse, Box<dyn std::error::Error>> {
+    pub async fn connect(&mut self, version: u32) -> Result<GatewayResponse, Box<dyn std::error::Error>> {
         let base_url = String::from(format!("https://discord.com/api/v{}", version));
         print!("HI");
         let res = self.http
