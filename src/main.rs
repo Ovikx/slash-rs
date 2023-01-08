@@ -1,4 +1,3 @@
-use tokio;
 use dotenv::dotenv;
 use std::env;
 use slash_rs::Client;
