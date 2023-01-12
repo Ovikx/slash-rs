@@ -1,38 +1,50 @@
-use awc;
+use reqwest;
 use crate::http::discord::GatewayResponse;
 
 pub struct Client {
     pub token: String,
-    pub http: awc::Client,
-    pub wss_url: String
+    pub http: reqwest::Client,
+    pub wss_url: String,
+    pub base_url: String
 }
 
 impl Client {
     pub fn new(token: &str) -> Self {
-        Client {token: String::from(token), http: awc::Client::new(), wss_url: String::from("wss://gateway.discord.gg")}
+        Client {
+            token: String::from(token),
+            http: reqwest::Client::new(),
+            base_url: String::from("https://discord.com/api/v10"),
+            wss_url: String::from("wss://gateway.discord.gg")
+        }
     }
 
-    pub async fn get_gateway(&mut self) -> Result<GatewayResponse, Box<dyn std::error::Error>> {
-        let base_url = String::from("https://discord.com/api/v10");
-        print!("HI");
-        let res = self.http
-        .get(format!("{}/gateway/bot", base_url))
-        .insert_header(("Authorization", format!("Bot {}", self.token)))
+    /// Returns a new Client with default settings
+    /// 
+    /// ## Arguments
+    /// 
+    /// * `token` - Token string prefixed by "Bot"
+    /// 
+    /// ## Examples
+    /// ```rs
+    /// // Creating the base client
+    /// let token = format!("Bot {token_string}");
+    /// let mut client = slash_rs::Client::new(&token);
+    /// ```
+    pub fn build(token: &str) -> Self {
+        let client = Client::new(token);
+        client
+    }
+
+    /// Changes the Client's Gateway URL
+    pub async fn set_gateway(&mut self) -> Result<(), reqwest::Error> {
+        self.wss_url = self.http
+        .get(format!("{}/gateway/bot", &self.base_url))
+        .header("Authorization", format!("Bot {}", self.token))
         .send()
         .await?
         .json::<GatewayResponse>()
-        .await?;
+        .await?.url;
 
-        self.wss_url = String::from(&res.url);
-        Ok(res)
-    }
-
-    pub async fn connect(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-        self.get_gateway().await?;
-        let (_resp, mut connection) = self.http
-            .ws(&self.wss_url)
-            .connect()
-            .await?;
         Ok(())
     }
 }
