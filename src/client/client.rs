@@ -30,9 +30,10 @@ impl Client {
     /// let token = format!("Bot {token_string}");
     /// let mut client = slash_rs::Client::new(&token);
     /// ```
-    pub fn build(token: &str) -> Self {
-        let client = Client::new(token);
-        client
+    pub async fn build(token: &str) -> Result<Self, reqwest::Error> {
+        let mut client = Client::new(token);
+        client.set_gateway().await?;
+        Ok(client)
     }
 
     /// Changes the Client's Gateway URL
@@ -43,7 +44,8 @@ impl Client {
         .send()
         .await?
         .json::<GatewayResponse>()
-        .await?.url;
+        .await?
+        .url;
 
         Ok(())
     }

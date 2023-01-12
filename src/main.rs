@@ -7,8 +7,7 @@ use tokio;
 async fn main() -> Result<(), reqwest::Error> {
     dotenv().ok();
     let token = env::var("TOKEN").expect("Could not read token");
-    let mut client = Client::build(&token);
-    client.set_gateway().await?;
+    let mut client = Client::build(&token).await?;
 
     Ok(())
 }
